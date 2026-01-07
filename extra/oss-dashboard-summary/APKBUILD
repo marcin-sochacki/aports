@@ -1,0 +1,21 @@
+pkgname=oss-dashboard-summary
+pkgver=0.1
+pkgrel=0
+pkgdesc="Grab the dashboard summary info for QNX"
+url="https://qnx.com"
+arch="all"
+license="LicenseRef-QDL-Non-Commercial"
+source="oss-dashboard-summary.c"
+
+build() {
+    gcc oss-dashboard-summary.c -O2 -o oss-dashboard-summary -lcurl
+}
+
+package() {
+    mkdir -p "$pkgdir"/usr/bin
+    install -v -m755 $srcdir/oss-dashboard-summary "$pkgdir"/usr/bin
+}
+
+sha512sums="
+8d2815bf1c0130ad9323c32d8e4f0a4a45cfe29c326c431f2a4c79c1f9cf41e424b75e900b0f870bae4363eaf9c2628e5bea77664f884225925893d96bea5178 oss-dashboard-summary.c
+"
