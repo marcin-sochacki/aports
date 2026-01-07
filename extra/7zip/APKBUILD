@@ -1,0 +1,75 @@
+# Maintainer: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+pkgname=7zip
+pkgver=25.01
+_pkgver=${pkgver//./}
+pkgrel=0
+pkgdesc="File archiver with a high compression ratio"
+url="https://7-zip.org/"
+arch="all"
+license="LGPL-2.0-only"
+makedepends="make"
+subpackages="$pkgname-doc"
+source="https://7-zip.org/a/7z$_pkgver-src.tar.xz
+	7-zip-flags.patch
+	7-zip-musl.patch
+	00qnx.patch
+	"
+builddir="$srcdir"
+
+provides="7zip-virtual p7zip=$pkgver-r$pkgrel"
+replaces="p7zip"
+provider_priority=100
+
+patch_args="-p1"
+
+prepare() {
+    if ! which c++ >/dev/null 2>&1; then
+    	sudo ln -s /usr/bin/g++ /usr/bin/c++
+    fi
+    # Remove "\r"
+    find "$srcdir" -type f -exec sed -i 's/\r$//' {} +
+    default_prepare
+}
+
+build() {
+	cd CPP/7zip/Bundles/Alone2
+	mkdir -p b/g
+	# TODO: enable asm (requires jwasm or uasm)
+	# DISABLE_RAR: RAR codec is non-free
+	# -D_GNU_SOURCE: broken sched.h defines
+	make -f ../../cmpl_gcc.mak \
+		CC="${CC:-cc} $CFLAGS $LDFLAGS -D_GNU_SOURCE" \
+		CXX="${CXX:-c++} $CXXFLAGS $LDFLAGS -D_GNU_SOURCE" \
+		DISABLE_RAR=1
+}
+
+check() {
+	# no proper test suite so just try to compress and decompress some files
+	rm -rf "$builddir"/tmp
+	cd "$builddir"
+	mkdir tmp
+
+	CPP/7zip/Bundles/Alone2/b/g/7zz a tmp/7z$_pkgver-src.7z Asm C CPP DOC
+	cd tmp
+	../CPP/7zip/Bundles/Alone2/b/g/7zz x 7z$_pkgver-src.7z
+
+	# check if extracted result is identical
+	diff -r ../Asm Asm
+	diff -r ../C C
+	diff -r ../CPP CPP
+	diff -r ../DOC DOC
+}
+
+package() {
+	install -Dm755 CPP/7zip/Bundles/Alone2/b/g/7zz "$pkgdir"/usr/bin/7zz
+	ln -s 7zz "$pkgdir"/usr/bin/7z
+
+	install -Dm644 "$builddir"/DOC/* -t "$pkgdir"/usr/share/doc/$pkgname/
+}
+
+sha512sums="
+5ee146ce993c6d12ad19333dc3545e6c3429212260c22d456390e49ca150e6fcbfc6eae45b5ec61138ae1598d7b4a79d6f2e3ff02929af38039c0ca59823e729  7z2501-src.tar.xz
+4f8ca9884d38a0b49e46fa27a5e50c9888a89c291837087eacb11cbe8df231de11079a1fe3b063030b5a1da26bdf1161b7bc1f4838fda1c30744369d5c182c2a  7-zip-flags.patch
+46a7b7d97125fa6906ee030466f1ebd0e5aa40d9dc2263042f59e1bda8fdbf29a1337adc44f93febf93bf8c240f41e972d26eb2bb36c1443d5d52aaa07f44612  7-zip-musl.patch
+fa1d82e00f7160a6f07012706d3d56bbc9194e4dea294b124eb77a04fc4861234904a4dadc4e6710e7cadd22bb4ca91a13a435eb3a5509ec4352251f9a62e150  00qnx.patch
+"
