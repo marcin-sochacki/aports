@@ -12,6 +12,11 @@ arch="noarch"
 depends="fontconfig"
 source="$pkgname-$pkgver.zip::https://github.com/googlefonts/Inconsolata/releases/download/v$pkgver/fonts_otf.zip"
 builddir="$srcdir/fonts"
+
+build() {
+	unzip -d "$srcdir" "$srcdir/$pkgname-$pkgver.zip"
+}
+
 options="!check" # no test suite
 
 package() {
