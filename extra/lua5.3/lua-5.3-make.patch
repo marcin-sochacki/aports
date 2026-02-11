@@ -40,7 +40,7 @@ index 2e7a412..a72f342 100644
  clean:
 @@ -194,4 +194,33 @@ lvm.o: lvm.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
  lzio.o: lzio.c lprefix.h lua.h luaconf.h llimits.h lmem.h lstate.h \
-   lobject.h ltm.h lzio.h
+  lobject.h ltm.h lzio.h
  
 +
 +export LIBTOOL = ../libtool --quiet --tag=CC
