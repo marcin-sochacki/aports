@@ -8,7 +8,7 @@ url="https://gitlab.alpinelinux.org/alpine/apk-tools"
 license="GPL-2.0-only"
 subpackages="$pkgname-dev $pkgname-doc python3-apk:pyapk lua$_luaver-apk:luaapk"
 depends="zstd-libs zlib-ng libssl3 qnx-io-sock"
-makedepends="meson ninja zstd-dev zlib-ng-dev openssl-dev lua$_luaver lua$_luaver-dev pkgconf-dev python3-dev scdoc qnx-io-sock-dev"
+makedepends="meson ninja zstd-dev zlib-ng-dev openssl-dev lua$_luaver-libs lua$_luaver lua$_luaver-dev pkgconf-dev python3-dev scdoc qnx-io-sock-dev"
 source="https://gitlab.alpinelinux.org/alpine/apk-tools/-/archive/v$pkgver/apk-tools-v$pkgver.tar.gz
     0001-qnx-compat.patch
 "
