@@ -6,13 +6,14 @@ pkgdesc="light header only library for modern C++ to interact with sqlite"
 arch="all"
 license="AGPL-3.0"
 url="https://github.com/fnc12/sqlite_orm"
-makedepends="qnx-base-dev sqlite-static sqlite-dev cmake ninja"
+makedepends="qnx-base-dev libc++-dev sqlite-static sqlite-dev cmake ninja"
 depends=""
 subpackages="${pkgname}-dev"
 source="${pkgname}-${pkgver}.tar.gz::https://github.com/fnc12/sqlite_orm/archive/refs/tags/v${pkgver}.tar.gz"
 
 build() {
     cmake_args="-DCMAKE_INSTALL_PREFIX=${PREFIX} \
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
                 -DCMAKE_STAGING_PREFIX=${PREFIX} \
                 -DCMAKE_BUILD_TYPE=Release \
                 "
