@@ -10,7 +10,11 @@ arch="noarch"
 license="OFL-1.1"
 source="https://github.com/rsms/inter/releases/download/v$pkgver/Inter-$pkgver.zip"
 options="!check" # No code to test
-builddir="$srcdir"
+builddir="$srcdir/Inter-$pkgver"
+
+build() {
+	unzip -d "$srcdir/Inter-$pkgver" "$srcdir/Inter-$pkgver.zip"
+}
 
 package() {
 	install -Dm644 ./*.ttf -t "$pkgdir"/usr/share/fonts/inter
