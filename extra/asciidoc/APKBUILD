@@ -10,7 +10,7 @@ license="GPL-2.0-or-later AND MIT"
 depends="python3 libxml2-utils docbook-xsl"
 makedepends="python3-gpep517 python3-setuptools python3-wheel"
 #checkdepends="python3-pytest python3-pytest-mock"
-subpackages="$pkgname-pyc $pkgname-doc"
+subpackages="$pkgname-doc"
 source="https://github.com/asciidoc-py/asciidoc-py/releases/download/$pkgver/asciidoc-$pkgver.tar.gz"
 options="!check"
 
