@@ -1,5 +1,5 @@
 # Alpine-Maintainer: Alex McGrath <amk@amk.ie>
-# Maintainer: Aaron Bassett <abassett@qnx.com
+# Maintainer: Aaron Bassett <abassett@qnx.com>
 # NOTE: this compiles but is having issues rendering on weston 
 # and need to figure out pty control issues
 pkgname=foot
