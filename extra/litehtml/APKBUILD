@@ -17,7 +17,10 @@ source="https://github.com/litehtml/litehtml/archive/v$pkgver/litehtml-$pkgver.t
 options="!check" # so outdated it does not work
 
 build() {
+    export CPPFLAGS="${CPPFLAGS} -D_QNX_SOURCE"
+
     cmake3.5 -B build -G Ninja \
+        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_SKIP_RPATH=ON \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_BUILD_TYPE=Release \
@@ -25,6 +28,7 @@ build() {
         -DBUILD_SHARED_LIBS=ON \
         -DLITEHTML_BUILD_TESTING=OFF
     cmake3.5 -B build-static -G Ninja \
+        -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_SKIP_RPATH=ON \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_BUILD_TYPE=Release \
