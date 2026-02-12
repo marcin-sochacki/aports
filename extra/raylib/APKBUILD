@@ -35,6 +35,7 @@ prepare() {
 
 build() {
     cmake \
+        -DCMAKE_CXX_COMPILER="clang++" \
         -DUSE_EXTERNAL_GLFW=ON \
         -DGLFW_BUILD_X11=OFF \
         -DGLFW_BUILD_WAYLAND=ON \
