@@ -27,9 +27,13 @@ makedepends="
     opus-dev
     libwebp-dev
     clang
+    qnx-screen-intel
+    qnx-screen
     qnx-screen-dev
     qnx-alsa-dev
     qnx-libslog2-dev
+    qnx-gles
+    qnx-egl
     gles-headers
     egl-headers
     libc++-dev
