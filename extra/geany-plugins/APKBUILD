@@ -72,6 +72,7 @@ prepare() {
 
 build() {
 	CFLAGS="$CFLAGS -Qunused-arguments"
+	LDFLAGS="$LDFLAGS -ldl"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
