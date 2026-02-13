@@ -26,6 +26,7 @@ build() {
 		--build="$CBUILD" \
 		--host="$CHOST" \
 		--prefix="$PREFIX" \
+		--libdir=/usr/lib \
 		--sysconfdir=/etc
 	make
 }
