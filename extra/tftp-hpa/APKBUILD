@@ -14,8 +14,8 @@ build() {
   ./configure \
     --build=$CBUILD \
     --host=$CHOST \
-    --prefix=/system \
-    --mandir=/system/share/man
+    --prefix=/usr \
+    --mandir=/usr/share/man
   make
 }
 
