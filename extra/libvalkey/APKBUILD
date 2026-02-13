@@ -9,10 +9,9 @@ url="https://github.com/valkey-io/libvalkey"
 arch="all"
 license="BSD-3-Clause"
 depends="libssl3 libcrypto3"
-makedepends="openssl-dev qnx-io-sock-dev"
+makedepends="openssl-dev qnx-io-sock-dev valkey"
 checkdepends="
 	libevent-dev
-	valkey
 	"
 subpackages="
 	$pkgname-tls
@@ -28,7 +27,7 @@ case "$CARCH" in
 esac
 
 build() {
-	make USE_TLS=1 \
+	make -j1 USE_TLS=1 \
 		TEST_ASYNC="$(want_check && echo 1 || echo 0)" \
 		OPTIMIZATION= \
 		CFLAGS="${CFLAGS/-Os/-O2} -Qunused-arguments" \
