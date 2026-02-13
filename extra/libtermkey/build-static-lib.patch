@@ -12,7 +12,7 @@
  
 @@ -112,9 +115,10 @@
  	install -d $(DESTDIR)$(LIBDIR)/pkgconfig
- 	sed "s,@LIBDIR@,$(LIBDIR),;s,@INCDIR@,$(INCDIR)," <termkey.pc.in >$(DESTDIR)$(LIBDIR)/pkgconfig/termkey.pc
+ 	LIBDIR=$(LIBDIR) INCDIR=$(INCDIR) VERSION=$(VERSION) sh termkey.pc.sh >$(DESTDIR)$(LIBDIR)/pkgconfig/termkey.pc
  
 -install-lib: $(LIBRARY)
 +install-lib: $(LIBRARY) libtermkey.a
