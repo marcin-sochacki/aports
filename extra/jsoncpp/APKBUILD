@@ -6,7 +6,7 @@ url="https://github.com/open-source-parsers/jsoncpp"
 arch="all"
 license="MIT"
 options="!check"
-makedepends="qnx-base-dev"
+makedepends="qnx-base-dev meson"
 depends_dev=$makedepends
 depends=""
 subpackages="${pkgname}-dev"
@@ -14,17 +14,27 @@ source="${pkgname}-${pkgver}.tar.gz::https://github.com/open-source-parsers/json
 builddir=${srcdir}/${pkgname}-${pkgver}
 
 build() {
-    BUILD_ROOT=${CBUILDROOT} "${CBUILDROOT}"/"${PREFIX}"/bin/gen-meson-cross
+    _extra_flags=""
+    if [[ $CBUILD = $CHOST ]]; then
+        # Compile natively
+        _extra_flags="-Dc_args=-D_QNX_SOURCE -Dc_link_args=-Wl,-lsocket"
+    else
+        # Cross compiling
+        BUILD_ROOT=$CBUILDROOT $CBUILDROOT/usr/bin/gen-meson-cross
+        _extra_flags="--cross-file=meson.cross"
+    fi
+
+    export CC=clang \
+    export CXX=clang++ \
 
     # cross for now, worry about self-hosted when the toolchain is up
     meson_args="-Dtests=false \
                 --reconfigure \
                 --buildtype=release \
                 --prefix="${PREFIX}" \
-                --cross-file="meson.cross" \
                 "
 
-    meson setup ${meson_args} build
+    meson setup $_extra_flags ${meson_args} build
     ninja -C build
 }
 
