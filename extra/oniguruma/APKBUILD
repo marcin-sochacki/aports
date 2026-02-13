@@ -21,6 +21,7 @@ prepare() {
 }
 
 build() {
+    CFLAGS="$CFLAGS -fPIC"
     ./configure \
         --build=$CBUILD \
         --host=$CHOST \
