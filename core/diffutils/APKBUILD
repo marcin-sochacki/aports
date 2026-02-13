@@ -6,8 +6,7 @@ subpackages="$pkgname-doc"
 url="https://www.gnu.org/software/diffutils/"
 arch="all"
 license="GPL-3.0-or-later"
-makedepends="qnx-io-sock-dev"
-checkdepends="perl"
+makedepends="qnx-io-sock-dev perl"
 source="https://ftp.gnu.org/pub/gnu/diffutils/diffutils-$pkgver.tar.xz
         fix-qnx.patch"
 
