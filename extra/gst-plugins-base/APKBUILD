@@ -61,7 +61,7 @@ build() {
     CXX=clang++ \
     CFLAGS="$CFLAGS -O2 -DNDEBUG" \
     CXXFLAGS="$CXXFLAGS -O2 -DNDEBUG" \
-    CPPFLAGS="$CPPFLAGS -O2 -DNDEBUG" \
+    CPPFLAGS="$CPPFLAGS -O2 -DNDEBUG -Wno-error=incompatible-function-pointer-types" \
     abuild-meson \
         -Db_lto=false \
         -Dalsa=enabled \
