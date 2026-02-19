@@ -1,0 +1,41 @@
+# Alpine-Contributor: Duncan Bellamy <dunk@denkimushi.com>
+# Alpine-Maintainer: Duncan Bellamy <dunk@denkimushi.com>
+# Maintainer: Ethan Leir <eleir@qnx.com>
+pkgname=benchmark
+pkgver=1.9.4
+pkgrel=0
+pkgdesc="microbenchmark support library"
+url="https://github.com/google/benchmark"
+arch="all"
+license="Apache-2.0"
+makedepends="cmake gtest-dev"
+subpackages="$pkgname-dev $pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/google/benchmark/archive/v$pkgver.tar.gz"
+
+build() {
+    cmake -B build \
+        -G Ninja \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DBUILD_SHARED_LIBS=True \
+        -DCMAKE_BUILD_TYPE=MinSizeRel \
+        -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF \
+        -DBENCHMARK_ENABLE_DOXYGEN=OFF \
+        -DBENCHMARK_ENABLE_LTO=ON \
+        -DBENCHMARK_ENABLE_WERROR=OFF \
+        -DBENCHMARK_USE_BUNDLED_GTEST=OFF .
+    cmake --build build
+}
+
+check() {
+    cd build
+    ctest
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+sha512sums="
+f9031f144a7deeed151d22676b50384c03e5bbd19b68dac9471e91e49c408b770158c5c325f58e6ac07437955fdab3f08aeee76ba7ca5f97d2b51f14f6782416  benchmark-1.9.4.tar.gz
+"
