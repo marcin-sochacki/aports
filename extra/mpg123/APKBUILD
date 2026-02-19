@@ -20,7 +20,7 @@ source="https://www.mpg123.org/download/mpg123-$pkgver.tar.bz2
 build() {
     CC=clang \
     CXX=clang++ \
-    CFLAGS="$CFLAGS -Qunused-arguments" \
+    CFLAGS="$CFLAGS -Qunused-arguments -Wno-error=incompatible-function-pointer-types" \
     CXXFLAGS="$CXXFLAGS -Qunused-arguments" \
     CPPFLAGS="$CPPFLAGS -Qunused-arguments" \
     ./configure \
