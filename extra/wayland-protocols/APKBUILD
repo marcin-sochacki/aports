@@ -10,8 +10,8 @@ makedepends="meson ninja pkgconf pkgconf-dev wayland-dev clang libc++-dev"
 source="https://gitlab.freedesktop.org/wayland/wayland-protocols/-/archive/$pkgver/wayland-protocols-$pkgver.tar.gz"
 
 build() {
-    CC="clang" \
-    CXX="clang++" \
+    CC="clang -Wno-unused-command-line-argument -Werror" \
+    CXX="clang++ -Wno-unused-command-line-argument -Werror" \
     abuild-meson -Dtests=true . build
     ninja -C build
 }
