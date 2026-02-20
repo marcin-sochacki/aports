@@ -74,6 +74,7 @@ build() {
     _shared_args="-DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_INSTALL_DOCDIR=share/doc \
                   -DCMAKE_INSTALL_LIBEXECDIR=bin \
+                  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
                   -DLLVM_HOST_TRIPLE="$_llvm_triplet" \
                   -DLLVM_DEFAULT_TARGET_TRIPLE="$_llvm_triplet" \
                   -DLLVM_APPEND_VC_REV=OFF \
