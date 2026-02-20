@@ -8,10 +8,11 @@ pkgdesc="Cap'n Proto serialization/RPC system - core tools and C++ library"
 url="https://capnproto.org/"
 arch="all"
 license="MIT"
+depends_dev="zlib-dev openssl-dev"
 makedepends="
+    $depends_dev
     cmake
     ninja
-    clang
 "
 subpackages="$pkgname-dev"
 source="$pkgname-$pkgver.tar.gz::https://github.com/capnproto/capnproto/archive/refs/tags/v$pkgver.tar.gz
@@ -19,12 +20,12 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/capnproto/capnproto/archive/
         "
 
 build() {
-  CC=clang \
   cmake -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_DATADIR=/usr/lib \
     -DBUILD_TESTING=ON \
+    -DBUILD_SHARED_LIBS=ON \
     -DQNX=ON
   cmake --build build
 }
