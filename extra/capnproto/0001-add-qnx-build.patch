@@ -112,6 +112,55 @@ index 64190c43..9da4c71b 100644
  
  KJ_TEST("UnixEventPort poll for signals") {
    captureSignals();
+diff --git a/c++/src/kj/async.c++ b/c++/src/kj/async.c++
+index 496a72cc..c88f9e58 100644
+--- a/c++/src/kj/async.c++
++++ b/c++/src/kj/async.c++
+@@ -56,7 +56,12 @@
+ #else
+ 
+ #if KJ_USE_FIBERS
++#if !__QNX__
+ #include <ucontext.h>
++#else
++#include <libucontext/libucontext.h>
++#define ucontext_t libucontext_ucontext_t
++#endif
+ #include <setjmp.h>    // for fibers
+ #endif
+ 
+@@ -1409,7 +1414,11 @@ struct FiberStack::Impl {
+ 
+     // Note: mmap() allocates zero'd pages so we don't have to memset() anything here.
+ 
++#if !__QNX__
+     KJ_SYSCALL(getcontext(context));
++#else
++    KJ_SYSCALL(libucontext_getcontext(context));
++#endif
+ #if __APPLE__ && __aarch64__
+     // Per issue #1386, apple on arm64 zeros the entire configured stack.
+     // But this is redundant, since we just allocated the stack with mmap() which
+@@ -1525,11 +1534,19 @@ FiberStack::FiberStack(size_t stackSizeParam)
+   int arg1 = ptr & ((uintptr_t(1) << (sizeof(ptr) * 4)) - 1);
+   int arg2 = ptr >> (sizeof(ptr) * 4);
+ 
++#if !__QNX__
+   makecontext(&context, reinterpret_cast<void(*)()>(&StartRoutine::run), 2, arg1, arg2);
++#else
++  libucontext_makecontext(&context, reinterpret_cast<void(*)()>(&StartRoutine::run), 2, arg1, arg2);
++#endif
+ 
+   __sanitizer_start_switch_fiber(&impl->originalFakeStack, impl, stackSize - sizeof(Impl));
+   if (_setjmp(impl->originalJmpBuf) == 0) {
++#if !__QNX__
+     setcontext(&context);
++#else
++    libucontext_setcontext(&context);
++#endif
+   }
+   __sanitizer_finish_switch_fiber(impl->originalFakeStack, nullptr, nullptr);
+ #endif
 diff --git a/c++/src/kj/exception.c++ b/c++/src/kj/exception.c++
 index 29405f64..709e5ed9 100644
 --- a/c++/src/kj/exception.c++
