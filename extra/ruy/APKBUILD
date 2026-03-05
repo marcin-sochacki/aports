@@ -17,29 +17,11 @@ makedepends="
     "
 subpackages="$pkgname-dev"
 _git_rev=0
-source="${pkgname}-${pkgver}.zip::https://github.com/qnx-ports/ruy/archive/refs/tags/qnx-$_pkgver-r$_git_rev.tar.gz
+source="${pkgname}-${pkgver}-r${_git_rev}.tar.gz::https://github.com/qnx-ports/ruy/archive/refs/tags/qnx-$_pkgver-r$_git_rev.tar.gz
     "
-builddir="${srcdir}/${pkgname}-${_pkgver}"
+builddir="${srcdir}/${pkgname}-qnx-${_pkgver}-r${_git_rev}"
 
 options="!check"
-
-unpack() {
-    # Workaround for busybox bug.
-    cd $srcdir
-    for u in $source; do
-        local s
-        if is_remote "$u"; then
-            s="$SRCDEST/$(filename_from_uri $u)"
-        else
-            s="$startdir/$u"
-        fi
-        case "$s" in
-            *.zip)
-                msg "Unpacking $s..."
-				unzip -n -q "$s";;
-        esac
-    done
-}
 
 build() {
     CC=clang \
@@ -62,5 +44,5 @@ package() {
 }
 
 sha512sums="
-ef266ab2eaf2b30e45a72f986236f27a4c7b17fb4cca18e7ad902b703bed382587c6b7c34841c5e95f78338bef703ad9d94a6511ae80fb2a60d92a1e6d13d57f  ruy-1.0.0_git20240321.zip
+0fbc0d837e86ecad89b093622bfd0199df97e1ab482c27a9dab69e2579130d63066829c785272173e5f97d722fa6e8f8fc613f8b67b30aba798cd2fd1d5a1387  ruy-1.0.0_git20240321-r0.tar.gz
 "
