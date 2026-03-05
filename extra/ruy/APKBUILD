@@ -1,0 +1,66 @@
+# Maintainer: Ethan Leir <eleir@qnx.com>
+pkgname=ruy
+pkgver=1.0.0_git20240321
+_pkgver=master
+pkgrel=0
+pkgdesc="A matrix multiplication library for ML inference"
+url="https://github.com/google/ruy"
+arch="all"
+license="Apache-2.0"
+depends="cpuinfo"
+makedepends="
+    cmake
+    ninja
+    clang
+    cpuinfo-dev
+    libc++-dev
+    "
+subpackages="$pkgname-dev"
+_git_rev=0
+source="${pkgname}-${pkgver}.zip::https://github.com/qnx-ports/ruy/archive/refs/tags/qnx-$_pkgver-r$_git_rev.tar.gz
+    "
+builddir="${srcdir}/${pkgname}-${_pkgver}"
+
+options="!check"
+
+unpack() {
+    # Workaround for busybox bug.
+    cd $srcdir
+    for u in $source; do
+        local s
+        if is_remote "$u"; then
+            s="$SRCDEST/$(filename_from_uri $u)"
+        else
+            s="$startdir/$u"
+        fi
+        case "$s" in
+            *.zip)
+                msg "Unpacking $s..."
+				unzip -n -q "$s";;
+        esac
+    done
+}
+
+build() {
+    CC=clang \
+    CXX=clang++ \
+    cmake3.5 -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DBUILD_SHARED_LIBS=ON \
+        -DRUY_FIND_CPUINFO=ON \
+        -DRUY_MINIMAL_BUILD=ON
+    cmake3.5 --build build
+}
+
+check() {
+    ctest3.5 --test-dir build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake3.5 --install build
+}
+
+sha512sums="
+ef266ab2eaf2b30e45a72f986236f27a4c7b17fb4cca18e7ad902b703bed382587c6b7c34841c5e95f78338bef703ad9d94a6511ae80fb2a60d92a1e6d13d57f  ruy-1.0.0_git20240321.zip
+"
