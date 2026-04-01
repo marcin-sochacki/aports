@@ -7,7 +7,7 @@ pkgdesc="A matrix multiplication library for ML inference"
 url="https://github.com/google/ruy"
 arch="all"
 license="Apache-2.0"
-depends="cpuinfo $pkgname-dev"
+depends="cpuinfo libc++ $pkgname-dev"
 makedepends="
     cmake
     ninja
