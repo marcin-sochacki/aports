@@ -1,0 +1,145 @@
+# Maintainer: Felix Lionardo <flionardo@qnx.com>
+pkgname=ros2-jazzy-moveit2
+pkgver=20260128
+pkgrel=0
+pkgdesc="ROS 2 Jazzy desktop package"
+url="https://docs.ros.org/en/jazzy/index.html"
+arch="all"
+license="Apache-2.0"
+options="!check !tracedeps !fhs"
+
+source="https://github.com/moveit/moveit2/archive/refs/tags/2.12.4.tar.gz
+https://github.com/ros/eigen_stl_containers/archive/refs/tags/1.1.0.tar.gz
+https://github.com/moveit/geometric_shapes/archive/refs/tags/2.3.3.tar.gz
+https://github.com/moveit/random_numbers/archive/refs/tags/2.0.4.tar.gz
+https://github.com/moveit/moveit_msgs/archive/refs/tags/2.7.1.tar.gz
+https://github.com/wg-perception/object_recognition_msgs/archive/refs/tags/2.0.0.tar.gz
+https://github.com/OctoMap/octomap_msgs/archive/refs/tags/2.0.1.tar.gz
+https://github.com/moveit/srdfdom/archive/refs/tags/2.0.9.tar.gz
+https://github.com/ros-industrial/stomp/archive/refs/tags/0.1.2.tar.gz
+https://github.com/ros-industrial/ros_industrial_cmake_boilerplate/archive/refs/tags/0.7.4.tar.gz
+https://github.com/moveit/warehouse_ros/archive/refs/tags/2.0.6.tar.gz
+moveit2.patch
+"
+builddir="$srcdir"
+depends="
+        ros2-jazzy
+        ros2-jazzy-control
+        ros2-jazzy-nav2
+        fmt
+        assimp
+        opencv-dev
+        libopencv_aruco
+        libopencv_face
+        libopencv_ml
+        libopencv_shape
+        libopencv_stitching
+        libopencv_superres
+        libopencv_tracking
+        libopencv_videostab
+        libopencv_highgui
+        libopencv_plot
+        ompl
+        libccd
+        octomap
+        fcl
+        bullet
+        osqp
+        ruckig
+        qhull
+"
+makedepends="
+        ros2-jazzy
+        ros2-jazzy-control
+        ros2-jazzy-nav2
+        boost-dev
+        asio-dev
+        tinyxml2-dev
+        eigen-dev
+        qnx-fs-notify-dev
+        qnx-fs-core-dev
+        qnx-fs-gpt-dev
+        liblocale-shim-dev
+        python3-dev
+        python3-pip
+        python3-numpy-dev
+        python3-jinja2
+        python3-typeguard
+        cmake
+        ninja
+        fmt-dev
+        assimp-dev
+        opencv-dev
+        ompl-dev
+        libccd-dev
+        octomap-dev
+        fcl-dev
+        bullet-dev
+        osqp-dev
+        ruckig-dev
+        qhull-dev
+        tl-expected
+"
+
+prepare() {
+        cd "$builddir"
+        _apply_qnx_patch() {
+                local _dir="$1"
+                local _patch="$2"
+                git -C "$builddir/$_dir" apply --whitespace=nowarn "$srcdir/$_patch"
+        }
+        _apply_qnx_patch moveit2-2.12.4 moveit2.patch
+}
+
+build() {
+        cd "$builddir"
+        export CXXFLAGS="${CXXFLAGS//-fstack-clash-protection/}"
+        export CFLAGS="${CFLAGS//-fstack-clash-protection/}"
+	export COLCON_EXTENSION_BLOCKLIST=colcon_core.event_handler.desktop_notification
+        source /opt/ros/jazzy/setup.bash
+        colcon build --merge-install \
+                --cmake-args \
+                        -G Ninja \
+                        -DBUILD_TESTING=OFF \
+                        -DCMAKE_BUILD_TYPE=Release \
+                        -DCMAKE_C_FLAGS="$CFLAGS -fvisibility=default -frtti -DSA_RESTART=0 -DBT_USE_DOUBLE_PRECISION -Wno-error=old-style-cast -Wno-error=inconsistent-missing-override -Wno-error=overloaded-virtual -Wno-error=ignored-optimization-argument -Wno-error=unknown-warning-option -Wno-error=pessimizing-move -Wno-error=braced-scalar-init" \
+                        -DCMAKE_CXX_FLAGS="$CXXFLAGS -fvisibility=default -frtti -DSA_RESTART=0 -DBT_USE_DOUBLE_PRECISION -Wno-error=old-style-cast -Wno-error=inconsistent-missing-override -Wno-error=overloaded-virtual -Wno-error=ignored-optimization-argument -Wno-error=unknown-warning-option -Wno-error=pessimizing-move -Wno-error=braced-scalar-init" \
+                        -DCMAKE_EXE_LINKER_FLAGS="-lsocket -lfsnotify -lc++ -lc++abi -Wl,-E" \
+                        -DCMAKE_SHARED_LINKER_FLAGS="-lsocket -lfsnotify -lc++ -lc++abi -Wl,-E" \
+                        -DTRACETOOLS_TRACEPOINTS_EXCLUDED=ON \
+                        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+			-DWITH_OPENGL=OFF \
+                --packages-skip \
+                        moveit_ros_visualization \
+                        moveit_setup_framework \
+                        moveit_setup_core_plugins \
+                        moveit_setup_app_plugins \
+                        moveit_setup_controllers \
+                        moveit_setup_simulation \
+                        moveit_setup_assistant \
+			moveit_setup_srdf_plugins
+}
+
+package() {
+        dest="/opt/ros/jazzy"
+        mkdir -p "$pkgdir/$dest"
+        for _d in lib share include bin etc opt tools; do
+                if [ -d "$builddir/install/$_d" ]; then
+                        cp -a "$builddir/install/$_d" "$pkgdir/$dest"
+                fi
+        done
+}
+sha512sums="
+ca36a74a8fb07e036a416a4a064f596c01ad327dc5ff1c41ee6598a0a244c15509792f9d47befe1d63ca793adc1ffd78b24edf3aedfb70bbe5c0e4290a2ad7d5  2.12.4.tar.gz
+1c9fab55a60e8fade4e65c6fe93e4ac3c253cee4453d05eeca0e4f28a28a7d385e43291e7eff5948d9d4bd8c01bf08c42af2d87e135727660bd4cf8705537df9  1.1.0.tar.gz
+088c42335e0dd55a140e1a7ec0b388271950037c54a922922c6c6fe69bfcdffc61fb7c8e352d901a6c7495663a5aafb9baace26a4224548481b58125f8849ff9  2.3.3.tar.gz
+b73db8ddcba7463ca81020ee507373d9159fb28f3fbea1556b31176753f2ff4c5aa2f87e9d6bd2a4aafa384aaf503d19fc3a4a0451640dcbf17da0efe0b00f89  2.0.4.tar.gz
+828739597cc7555a2098564a053370b19dc2f76f95f6352584897ddd9544308c58a943410079f427803ce3084ab88acc78cd7f86029b63478407c73b2118019b  2.7.1.tar.gz
+48e5ebf1d3e39d6ce649fc78056424960f21ec730ecd80e22b98fc3074445934d5644371e812614270f73abad27a40032c25176f5629d19040e8f30cba979c3f  2.0.0.tar.gz
+8ccefb553a8a5f9f83e39cc491776707a6d5afc6deebcc4b6677f1d4c947139aeb62009eddd82f52452a4f4f10074d8bda0441f82715e72dad598cbade77eb3a  2.0.1.tar.gz
+c2606ca1bfd537c4a6aa6baa19004a826dc464dcd81dd175e5f7b5130f22bd7682e5e144d792a5e885b432d775b8f58be410a8081af31b05d8e659dc5bc47c99  2.0.9.tar.gz
+b5db57eb0c25fe2010b64c67ea6d4d145d5c2ab2657e1468dd910ae346ec5f3cca7d0755478ae98727394565048097d1f038ee92666f4e8cff04d515e93a5818  0.1.2.tar.gz
+7b2c2bee923f50bfd7a19b51be5a3483f6efd4ecc57998fff6ca0185c1ac7bbd4287aa13d322116a4c7baba28d1de1a0b61540ab70443291947339a379b7f1ac  0.7.4.tar.gz
+64ad2a359bce759d507d131a6743aead824263cfef4c99206a77fabcfe31b7c522dfa26bb3261e08080c200b96bfc89c3133b051957a1fbf05fca5aea8ba67f1  2.0.6.tar.gz
+0edad96d1066efc43ead11cf12eadd16aa9fc63c6fca9c187602d1d5317cc0225e2cf674002d6d8371480e9b7bbaa5af1ea0813590e70df3b03adceb6b2a5435  moveit2.patch
+"

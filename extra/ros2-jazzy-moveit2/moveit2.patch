@@ -1,0 +1,277 @@
+diff --git a/moveit/package.xml b/moveit/package.xml
+index 20df850cb..024501c3f 100644
+--- a/moveit/package.xml
++++ b/moveit/package.xml
+@@ -28,7 +28,6 @@
+   <exec_depend>moveit_planners</exec_depend>
+   <exec_depend>moveit_plugins</exec_depend>
+   <exec_depend>moveit_ros</exec_depend>
+-  <exec_depend>moveit_setup_assistant</exec_depend>
+ 
+   <export>
+     <build_type>ament_cmake</build_type>
+diff --git a/moveit_core/ConfigExtras.cmake b/moveit_core/ConfigExtras.cmake
+index 8475da4b4..9daa70441 100644
+--- a/moveit_core/ConfigExtras.cmake
++++ b/moveit_core/ConfigExtras.cmake
+@@ -10,5 +10,4 @@ find_package(
+   program_options
+   regex
+   serialization
+-  system
+   thread)
+diff --git a/moveit_core/collision_detection/src/world.cpp b/moveit_core/collision_detection/src/world.cpp
+index b2262f93d..8fd25b163 100644
+--- a/moveit_core/collision_detection/src/world.cpp
++++ b/moveit_core/collision_detection/src/world.cpp
+@@ -130,7 +130,7 @@ World::ObjectConstPtr World::getObject(const std::string& object_id) const
+ 
+ void World::ensureUnique(ObjectPtr& obj)
+ {
+-  if (obj && !obj.unique())
++  if (obj && obj.use_count() != 1)
+     obj = std::make_shared<Object>(*obj);
+ }
+ 
+diff --git a/moveit_core/collision_detection_fcl/src/collision_common.cpp b/moveit_core/collision_detection_fcl/src/collision_common.cpp
+index ca76202d6..34a4e1bd9 100644
+--- a/moveit_core/collision_detection_fcl/src/collision_common.cpp
++++ b/moveit_core/collision_detection_fcl/src/collision_common.cpp
+@@ -782,7 +782,7 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape,
+         //        cache_it->second->collision_geometry_data_->getID().c_str());
+         return cache_it->second;
+       }
+-      else if (cache_it->second.unique())
++      else if (cache_it->second.use_count() == 1)
+       {
+         const_cast<FCLGeometry*>(cache_it->second.get())->updateCollisionGeometryData(data, shape_index, false);
+         //          RCLCPP_DEBUG(getLogger(), "Collision data structures for object %s retrieved from
+@@ -806,7 +806,7 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape,
+     auto cache_it = othercache.map_.find(wptr);
+     if (cache_it != othercache.map_.end())
+     {
+-      if (cache_it->second.unique())
++      if (cache_it->second.use_count() == 1)
+       {
+         // remove from old cache
+         FCLGeometryConstPtr obj_cache = cache_it->second;
+@@ -839,7 +839,7 @@ FCLGeometryConstPtr createCollisionGeometry(const shapes::ShapeConstPtr& shape,
+       auto cache_it = othercache.map_.find(wptr);
+       if (cache_it != othercache.map_.end())
+       {
+-        if (cache_it->second.unique())
++        if (cache_it->second.use_count() == 1)
+         {
+           // remove from old cache
+           FCLGeometryConstPtr obj_cache = cache_it->second;
+diff --git a/moveit_core/robot_state/src/attached_body.cpp b/moveit_core/robot_state/src/attached_body.cpp
+index 3a606dfe5..04961a849 100644
+--- a/moveit_core/robot_state/src/attached_body.cpp
++++ b/moveit_core/robot_state/src/attached_body.cpp
+@@ -88,7 +88,7 @@ void AttachedBody::setScale(double scale)
+   for (shapes::ShapeConstPtr& shape : shapes_)
+   {
+     // if this shape is only owned here (and because this is a non-const function), we can safely const-cast:
+-    if (shape.unique())
++    if (shape.use_count() == 1)
+     {
+       const_cast<shapes::Shape*>(shape.get())->scale(scale);
+     }
+@@ -122,7 +122,7 @@ void AttachedBody::setPadding(double padding)
+   for (shapes::ShapeConstPtr& shape : shapes_)
+   {
+     // if this shape is only owned here (and because this is a non-const function), we can safely const-cast:
+-    if (shape.unique())
++    if (shape.use_count() == 1)
+     {
+       const_cast<shapes::Shape*>(shape.get())->padd(padding);
+     }
+diff --git a/moveit_kinematics/ConfigExtras.cmake b/moveit_kinematics/ConfigExtras.cmake
+index adca88d82..cbe96e25b 100644
+--- a/moveit_kinematics/ConfigExtras.cmake
++++ b/moveit_kinematics/ConfigExtras.cmake
+@@ -1,3 +1,3 @@
+ # Extras module needed for dependencies to find boost components
+ 
+-find_package(Boost REQUIRED program_options system)
++find_package(Boost REQUIRED program_options)
+diff --git a/moveit_planners/ompl/CMakeLists.txt b/moveit_planners/ompl/CMakeLists.txt
+index 646289474..b6fd6ca62 100644
+--- a/moveit_planners/ompl/CMakeLists.txt
++++ b/moveit_planners/ompl/CMakeLists.txt
+@@ -8,7 +8,6 @@ moveit_package()
+ find_package(
+   Boost
+   REQUIRED
+-  system
+   filesystem
+   date_time
+   thread
+diff --git a/moveit_planners/ompl/ompl_interface/src/planning_context_manager.cpp b/moveit_planners/ompl/ompl_interface/src/planning_context_manager.cpp
+index 8da1bb4c7..b90b070b2 100644
+--- a/moveit_planners/ompl/ompl_interface/src/planning_context_manager.cpp
++++ b/moveit_planners/ompl/ompl_interface/src/planning_context_manager.cpp
+@@ -353,7 +353,7 @@ PlanningContextManager::getPlanningContext(const planning_interface::PlannerConf
+     {
+       for (const ModelBasedPlanningContextPtr& cached_context : cached_contexts->second)
+       {
+-        if (cached_context.unique())
++        if (cached_context.use_count() == 1)
+         {
+           RCLCPP_DEBUG(getLogger(), "Reusing cached planning context");
+           context = cached_context;
+diff --git a/moveit_plugins/moveit_ros_control_interface/ConfigExtras.cmake b/moveit_plugins/moveit_ros_control_interface/ConfigExtras.cmake
+index 01c37605f..53dcf0739 100644
+--- a/moveit_plugins/moveit_ros_control_interface/ConfigExtras.cmake
++++ b/moveit_plugins/moveit_ros_control_interface/ConfigExtras.cmake
+@@ -1,3 +1,3 @@
+ # Extras module needed for dependencies to find boost components
+ 
+-find_package(Boost REQUIRED COMPONENTS system thread)
++find_package(Boost REQUIRED COMPONENTS thread)
+diff --git a/moveit_ros/move_group/ConfigExtras.cmake b/moveit_ros/move_group/ConfigExtras.cmake
+index 30817cf00..66d025af4 100644
+--- a/moveit_ros/move_group/ConfigExtras.cmake
++++ b/moveit_ros/move_group/ConfigExtras.cmake
+@@ -3,7 +3,6 @@
+ find_package(
+   Boost
+   REQUIRED
+-  system
+   filesystem
+   date_time
+   program_options
+diff --git a/moveit_ros/moveit_ros/package.xml b/moveit_ros/moveit_ros/package.xml
+index bbb297739..afe32bc3f 100644
+--- a/moveit_ros/moveit_ros/package.xml
++++ b/moveit_ros/moveit_ros/package.xml
+@@ -30,7 +30,6 @@
+   <exec_depend>moveit_ros_benchmarks</exec_depend>
+   <exec_depend>moveit_ros_robot_interaction</exec_depend>
+   <exec_depend>moveit_ros_planning_interface</exec_depend>
+-  <exec_depend>moveit_ros_visualization</exec_depend>
+   <exec_depend>moveit_ros_move_group</exec_depend>
+ 
+   <export>
+diff --git a/moveit_ros/moveit_servo/package.xml b/moveit_ros/moveit_servo/package.xml
+index 0f00c9ec3..66e36279d 100644
+--- a/moveit_ros/moveit_servo/package.xml
++++ b/moveit_ros/moveit_servo/package.xml
+@@ -45,7 +45,6 @@
+   <exec_depend>joy</exec_depend>
+   <exec_depend>launch_param_builder</exec_depend>
+   <exec_depend>moveit_configs_utils</exec_depend>
+-  <exec_depend>moveit_ros_visualization</exec_depend>
+   <exec_depend>robot_state_publisher</exec_depend>
+   <exec_depend>tf2_ros</exec_depend>
+ 
+diff --git a/moveit_ros/perception/CMakeLists.txt b/moveit_ros/perception/CMakeLists.txt
+index 0452e0485..dbaf6382d 100644
+--- a/moveit_ros/perception/CMakeLists.txt
++++ b/moveit_ros/perception/CMakeLists.txt
+@@ -60,23 +60,30 @@ find_package(OpenCV)
+ include(ConfigExtras.cmake)
+ 
+ set(THIS_PACKAGE_INCLUDE_DIRS
+-    depth_image_octomap_updater/include
+     lazy_free_space_updater/include
+-    mesh_filter/include
+     point_containment_filter/include
+     pointcloud_octomap_updater/include
+-    semantic_world/include
++    semantic_world/include)
++if(WITH_OPENGL)
++  list(APPEND THIS_PACKAGE_INCLUDE_DIRS
++    depth_image_octomap_updater/include
++    mesh_filter/include
+     ${PERCEPTION_GL_INCLUDE_DIRS})
++endif()
+ 
+ set(THIS_PACKAGE_LIBRARIES
+-    moveit_depth_image_octomap_updater
+-    moveit_depth_image_octomap_updater_core
+     moveit_lazy_free_space_updater
+-    moveit_mesh_filter
+     moveit_point_containment_filter
+     moveit_pointcloud_octomap_updater
+     moveit_pointcloud_octomap_updater_core
+     moveit_semantic_world)
++if(WITH_OPENGL)
++  set(THIS_PACKAGE_LIBRARIES
++    moveit_depth_image_octomap_updater
++    moveit_depth_image_octomap_updater_core
++    moveit_mesh_filter
++    ${THIS_PACKAGE_LIBRARIES})
++endif()
+ 
+ set(THIS_PACKAGE_INCLUDE_DEPENDS
+     image_transport
+diff --git a/moveit_ros/planning/ConfigExtras.cmake b/moveit_ros/planning/ConfigExtras.cmake
+index 3a527d95c..b101f9b1f 100644
+--- a/moveit_ros/planning/ConfigExtras.cmake
++++ b/moveit_ros/planning/ConfigExtras.cmake
+@@ -3,7 +3,6 @@
+ find_package(
+   Boost
+   REQUIRED
+-  system
+   filesystem
+   date_time
+   program_options
+diff --git a/moveit_ros/planning/kinematics_plugin_loader/src/kinematics_plugin_loader.cpp b/moveit_ros/planning/kinematics_plugin_loader/src/kinematics_plugin_loader.cpp
+index ead7aa044..464d6fbf0 100644
+--- a/moveit_ros/planning/kinematics_plugin_loader/src/kinematics_plugin_loader.cpp
++++ b/moveit_ros/planning/kinematics_plugin_loader/src/kinematics_plugin_loader.cpp
+@@ -197,7 +197,7 @@ public:
+   {
+     std::scoped_lock slock(cache_lock_);
+     kinematics::KinematicsBasePtr& cached = instances_[jmg];
+-    if (cached.unique())
++    if (cached.use_count() == 1)
+       return std::move(cached);  // pass on unique instance
+ 
+     // create a new instance and store in instances_
+diff --git a/moveit_ros/planning_interface/ConfigExtras.cmake b/moveit_ros/planning_interface/ConfigExtras.cmake
+index 63a5f425e..05ffe2fb2 100644
+--- a/moveit_ros/planning_interface/ConfigExtras.cmake
++++ b/moveit_ros/planning_interface/ConfigExtras.cmake
+@@ -8,4 +8,4 @@ find_package(
+   Boost REQUIRED
+   COMPONENTS date_time filesystem program_options
+              # ${BOOST_PYTHON_COMPONENT}
+-             system thread)
++             thread)
+diff --git a/moveit_ros/robot_interaction/src/locked_robot_state.cpp b/moveit_ros/robot_interaction/src/locked_robot_state.cpp
+index 15b8d0c84..35c859bda 100644
+--- a/moveit_ros/robot_interaction/src/locked_robot_state.cpp
++++ b/moveit_ros/robot_interaction/src/locked_robot_state.cpp
+@@ -66,7 +66,7 @@ void robot_interaction::LockedRobotState::setState(const moveit::core::RobotStat
+ 
+     // If someone else has a reference to the state, then make a new copy.
+     // The old state is orphaned (does not change, but is now out of date).
+-    if (state_.unique())
++    if (state_.use_count() == 1)
+     {
+       *state_ = state;
+     }
+@@ -87,7 +87,7 @@ void robot_interaction::LockedRobotState::modifyState(const ModifyStateFunction&
+ 
+     // If someone else has a reference to the state, then make a copy.
+     // The old state is orphaned (does not change, but is now out of date).
+-    if (!state_.unique())
++    if (state_.use_count() != 1)
+       state_ = std::make_shared<moveit::core::RobotState>(*state_);
+ 
+     modify(state_.get());
+diff --git a/moveit_ros/warehouse/ConfigExtras.cmake b/moveit_ros/warehouse/ConfigExtras.cmake
+index 22f3754b5..aafdf62f8 100644
+--- a/moveit_ros/warehouse/ConfigExtras.cmake
++++ b/moveit_ros/warehouse/ConfigExtras.cmake
+@@ -4,7 +4,6 @@ find_package(
+   Boost
+   REQUIRED
+   thread
+-  system
+   filesystem
+   regex
+   date_time
