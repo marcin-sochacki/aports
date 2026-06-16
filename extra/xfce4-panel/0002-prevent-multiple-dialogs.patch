@@ -1,0 +1,54 @@
+From b05bc117d9150110a5b170600728cda72144a141 Mon Sep 17 00:00:00 2001
+From: felixlionardo <flionardo@blackberry.com>
+Date: Thu, 11 Jun 2026 15:21:56 -0400
+Subject: [PATCH] prevent multiple dialogs
+
+---
+ plugins/actions/actions.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/plugins/actions/actions.c b/plugins/actions/actions.c
+index 3e7b7f884..746c010e9 100644
+--- a/plugins/actions/actions.c
++++ b/plugins/actions/actions.c
+@@ -117,6 +117,7 @@ struct _ActionsPlugin
+   guint ask_confirmation : 1;
+   guint pack_idle_id;
+   guint watch_id;
++  guint action_in_progress : 1;
+   GDBusProxy *proxy;
+   const gchar *switch_user_cmd;
+   const gchar *lock_session_cmd;
+@@ -1110,11 +1111,19 @@ actions_plugin_action_activate (GtkWidget *widget,
+   entry = g_object_get_qdata (G_OBJECT (widget), action_quark);
+   panel_return_if_fail (entry != NULL);
+ 
++  // Check if an action is in progress to avoid stacking multiple dialogs
++  if (plugin->action_in_progress)
++    return;
++  plugin->action_in_progress = TRUE;
++
+   if (plugin->ask_confirmation
+       && entry->question != NULL
+       && entry->status != NULL
+       && !actions_plugin_action_confirmation (plugin, entry, &unattended))
+-    return;
++    {
++      plugin->action_in_progress = FALSE;
++      return;
++    }
+ 
+   switch (entry->type)
+     {
+@@ -1171,6 +1180,8 @@ actions_plugin_action_activate (GtkWidget *widget,
+     {
+       xfce_dialog_show_error (NULL, error, _("Failed to run action \"%s\""), _(entry->display_name));
+     }
++
++  plugin->action_in_progress = FALSE;
+ }
+ 
+ 
+-- 
+2.54.0
+
