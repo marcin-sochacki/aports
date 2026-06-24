@@ -10,20 +10,12 @@ url="https://github.com/google/re2"
 arch="all"
 license="BSD-3-Clause"
 depends="
-    abseil-cpp-hash
-    abseil-cpp-log-internal-check-op
-    abseil-cpp-log-internal-message
-    abseil-cpp-raw-hash-set
-    abseil-cpp-raw-logging-internal
-    abseil-cpp-spinlock-wait
-    abseil-cpp-str-format-internal
-    abseil-cpp-strings
-    abseil-cpp-synchronization
+    abseil-cpp>=20250814.1
     icu-libs
     "
 depends_dev="
     libc++-dev
-    abseil-cpp-dev
+    abseil-cpp-dev>=20250814.1
     icu-dev
     "
 makedepends="
