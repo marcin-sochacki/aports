@@ -28,3 +28,14 @@ Disable network grabbers that need boost::asio signal_set (unsupported SA_RESTAR
    ${VTK_IO_INCLUDES}
    ${OPENNI_GRABBER_INCLUDES}
    ${OPENNI2_GRABBER_INCLUDES}
+--- a/test/io/CMakeLists.txt
++++ b/test/io/CMakeLists.txt
+@@ -59,8 +59,3 @@
+         FILES test_octree_compression.cpp
+         LINK_WITH pcl_gtest pcl_common pcl_io pcl_octree
+         ARGUMENTS "${PCL_SOURCE_DIR}/test/milk_color.pcd")
+-
+-PCL_ADD_TEST (io_tim_grabber test_tim_grabber
+-              FILES test_tim_grabber.cpp
+-              LINK_WITH pcl_gtest pcl_io
+-              ARGUMENTS "${PCL_SOURCE_DIR}/test/io/tim_sequences")
