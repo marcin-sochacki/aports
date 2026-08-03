@@ -26,6 +26,7 @@ subpackages="$pkgname-dev::all $pkgname-libs::all $pkgname-tools::all"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Tencent/ncnn/archive/$pkgver/ncnn-$pkgver.tar.gz
 	001-fix-bf16-packed-missing-int16-extension-check.patch
 	002-fix-atan2-vec4-zero-zero.patch
+	003-fix-spirv-compile-failure-diagnostics-read-past-shader-buffer.patch
 	"
 
 build() {
@@ -72,4 +73,5 @@ sha512sums="
 515c6b6adda0b57b84427314c75375312e2e1f8a7c47900ca1419735cbf956b1dab14cd3caad008bda7269578e01cae2dda8b49565c6e0eceff724bbc11f6c55  ncnn-20260526.tar.gz
 a7fb1e64c28d0ee4cad31e05ca327ad13170c1f0831a3ae1b490883dcd0adec8f82adcc1f7ccfe8cd69bfc790af63f836009d46bdf33001ff4ef07d6c95fe98e  001-fix-bf16-packed-missing-int16-extension-check.patch
 2afc359d4034fced4b2217b156ff404a099baf39b6c6091dc724adc3d2756cd9a56ba84620853e1c53075e72327b5cca9eea917b03600c5e27532318d34a24c6  002-fix-atan2-vec4-zero-zero.patch
+add9773155774e8121c2eff19cf1e7e218b5bb26736b8c4fea41337612ca1336afb93b59c886019e5e2330f524322262b6e5fe455e2c615aa071782efccbb04d  003-fix-spirv-compile-failure-diagnostics-read-past-shader-buffer.patch
 "
