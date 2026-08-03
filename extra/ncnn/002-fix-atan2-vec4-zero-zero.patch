@@ -1,0 +1,86 @@
+binaryop shaders: apply the atan(0,0) driver workaround unconditionally, not just on llvmpipe
+
+--- a/src/layer/vulkan/shader/binaryop_pack4.comp
++++ b/src/layer/vulkan/shader/binaryop_pack4.comp
+@@ -93,8 +93,11 @@
+     if (op_type == 10) res = afpvec4(atan(vec4(v1), vec4(v2)));
+     if (op_type == 11) res = afpvec4(atan(vec4(v2), vec4(v1)));
+ #else
+-#if ncnn_driverID == 13
+-    // llvmpipe driver (VK_DRIVER_ID_MESA_LLVMPIPE = 13) workaround for atan(0, 0), match atan2f(0, 0) == 0
++    // workaround for atan(0, 0): match atan2f(0, 0) == 0. Originally scoped to
++    // llvmpipe (VK_DRIVER_ID_MESA_LLVMPIPE) only; also needed on Mesa v3dv
++    // (Broadcom V3D), whose vectorized atan(vec4,vec4) mishandles the (0,0)
++    // lane even though its scalar atan(float,float) is correct. Applied
++    // unconditionally since the substitution is a no-op for every other input.
+     if (op_type == 10)
+     {
+         bvec4 zero_mask = bvec4(uvec4(equal(v1, afpvec4(0.f))) & uvec4(equal(v2, afpvec4(0.f))));
+@@ -107,11 +110,7 @@
+         afpvec4 v1_safe = mix(v1, afpvec4(1.f), zero_mask);
+         res = atan(v2, v1_safe);
+     }
+-#else
+-    if (op_type == 10) res = atan(v1, v2);
+-    if (op_type == 11) res = atan(v2, v1);
+ #endif
+-#endif
+     if (op_type == 12) res = v1 - trunc(v1 / v2) * v2;
+     if (op_type == 13) res = v2 - trunc(v2 / v1) * v1;
+     if (op_type == 14) res = max(v1, v2) + log(afpvec4(1.0) + exp(min(v1, v2) - max(v1, v2)));
+--- a/src/layer/vulkan/shader/binaryop_broadcast_pack4.comp
++++ b/src/layer/vulkan/shader/binaryop_broadcast_pack4.comp
+@@ -167,8 +167,11 @@
+     if (op_type == 10) res = afpvec4(atan(vec4(v1), vec4(v2)));
+     if (op_type == 11) res = afpvec4(atan(vec4(v2), vec4(v1)));
+ #else
+-#if ncnn_driverID == 13
+-    // llvmpipe driver (VK_DRIVER_ID_MESA_LLVMPIPE = 13) workaround for atan(0, 0), match atan2f(0, 0) == 0
++    // workaround for atan(0, 0): match atan2f(0, 0) == 0. Originally scoped to
++    // llvmpipe (VK_DRIVER_ID_MESA_LLVMPIPE) only; also needed on Mesa v3dv
++    // (Broadcom V3D), whose vectorized atan(vec4,vec4) mishandles the (0,0)
++    // lane even though its scalar atan(float,float) is correct. Applied
++    // unconditionally since the substitution is a no-op for every other input.
+     if (op_type == 10)
+     {
+         bvec4 zero_mask = bvec4(uvec4(equal(v1, afpvec4(0.f))) & uvec4(equal(v2, afpvec4(0.f))));
+@@ -181,11 +184,7 @@
+         afpvec4 v1_safe = mix(v1, afpvec4(1.f), zero_mask);
+         res = atan(v2, v1_safe);
+     }
+-#else
+-    if (op_type == 10) res = atan(v1, v2);
+-    if (op_type == 11) res = atan(v2, v1);
+ #endif
+-#endif
+     if (op_type == 12) res = v1 - trunc(v1 / v2) * v2;
+     if (op_type == 13) res = v2 - trunc(v2 / v1) * v1;
+     if (op_type == 14) res = max(v1, v2) + log(afpvec4(1.0) + exp(min(v1, v2) - max(v1, v2)));
+--- a/src/layer/vulkan/shader/binaryop_broadcast_pack1to4.comp
++++ b/src/layer/vulkan/shader/binaryop_broadcast_pack1to4.comp
+@@ -98,8 +98,11 @@
+     if (op_type == 10) res = afpvec4(atan(vec4(v1), vec4(v2)));
+     if (op_type == 11) res = afpvec4(atan(vec4(v2), vec4(v1)));
+ #else
+-#if ncnn_driverID == 13
+-    // llvmpipe driver (VK_DRIVER_ID_MESA_LLVMPIPE = 13) workaround for atan(0, 0), match atan2f(0, 0) == 0
++    // workaround for atan(0, 0): match atan2f(0, 0) == 0. Originally scoped to
++    // llvmpipe (VK_DRIVER_ID_MESA_LLVMPIPE) only; also needed on Mesa v3dv
++    // (Broadcom V3D), whose vectorized atan(vec4,vec4) mishandles the (0,0)
++    // lane even though its scalar atan(float,float) is correct. Applied
++    // unconditionally since the substitution is a no-op for every other input.
+     if (op_type == 10)
+     {
+         bvec4 zero_mask = bvec4(uvec4(equal(v1, afpvec4(0.f))) & uvec4(equal(v2, afpvec4(0.f))));
+@@ -112,11 +115,7 @@
+         afpvec4 v1_safe = mix(v1, afpvec4(1.f), zero_mask);
+         res = atan(v2, v1_safe);
+     }
+-#else
+-    if (op_type == 10) res = atan(v1, v2);
+-    if (op_type == 11) res = atan(v2, v1);
+ #endif
+-#endif
+     if (op_type == 12) res = v1 - trunc(v1 / v2) * v2;
+     if (op_type == 13) res = v2 - trunc(v2 / v1) * v1;
+     if (op_type == 14) res = max(v1, v2) + log(afpvec4(1.0) + exp(min(v1, v2) - max(v1, v2)));

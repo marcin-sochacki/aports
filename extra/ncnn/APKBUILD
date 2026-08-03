@@ -1,0 +1,75 @@
+# Contributor: Marcin Sochacki <msochacki@qnx.com>
+# Maintainer: Marcin Sochacki <msochacki@qnx.com>
+pkgname=ncnn
+pkgver=20260526
+pkgrel=0
+pkgdesc="High-performance neural network inference framework optimized for mobile/embedded platforms"
+url="https://github.com/Tencent/ncnn"
+arch="all"
+license="BSD-3-Clause"
+depends="$pkgname-libs=$pkgver-r$pkgrel"
+depends_dev="
+	libc++-dev
+	openmp-dev
+	vulkan-headers
+	"
+makedepends="
+	$depends_dev
+	cmake
+	ninja
+	protobuf-dev
+	glslang-dev
+	spirv-tools-dev
+	"
+options="!check"
+subpackages="$pkgname-dev::all $pkgname-libs::all $pkgname-tools::all"
+source="$pkgname-$pkgver.tar.gz::https://github.com/Tencent/ncnn/archive/$pkgver/ncnn-$pkgver.tar.gz
+	001-fix-bf16-packed-missing-int16-extension-check.patch
+	002-fix-atan2-vec4-zero-zero.patch
+	"
+
+build() {
+	CC=clang \
+	CXX=clang++ \
+	cmake -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DNCNN_SHARED_LIB=ON \
+		-DNCNN_OPENMP=ON \
+		-DNCNN_VULKAN=ON \
+		-DNCNN_SYSTEM_GLSLANG=ON \
+		-DNCNN_BUILD_TOOLS=ON \
+		-DNCNN_BUILD_EXAMPLES=OFF \
+		-DNCNN_BUILD_BENCHMARK=OFF \
+		-DNCNN_BUILD_TESTS=ON
+
+	cmake --build build -j4
+}
+
+check() {
+	cd build
+	ctest --output-on-failure
+}
+
+libs() {
+	default_libs
+	depends="libc++ openmp>=22.1.4_p1 qnx-vulkan glslang-libs"
+}
+
+tools() {
+	pkgdesc="$pkgdesc (model conversion and optimization tools)"
+	depends="libc++ $pkgname-libs=$pkgver-r$pkgrel libprotobuf abseil-cpp>=20250814.1"
+	amove usr/bin
+}
+
+package() {
+	pkgarch="noarch"
+	DESTDIR="$pkgdir" cmake --install build
+}
+
+sha512sums="
+515c6b6adda0b57b84427314c75375312e2e1f8a7c47900ca1419735cbf956b1dab14cd3caad008bda7269578e01cae2dda8b49565c6e0eceff724bbc11f6c55  ncnn-20260526.tar.gz
+a7fb1e64c28d0ee4cad31e05ca327ad13170c1f0831a3ae1b490883dcd0adec8f82adcc1f7ccfe8cd69bfc790af63f836009d46bdf33001ff4ef07d6c95fe98e  001-fix-bf16-packed-missing-int16-extension-check.patch
+2afc359d4034fced4b2217b156ff404a099baf39b6c6091dc724adc3d2756cd9a56ba84620853e1c53075e72327b5cca9eea917b03600c5e27532318d34a24c6  002-fix-atan2-vec4-zero-zero.patch
+"
