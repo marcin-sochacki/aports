@@ -20,13 +20,22 @@ makedepends="
 	protobuf-dev
 	glslang-dev
 	spirv-tools-dev
+	python3-dev
+	python3-numpy-dev
+	python3-pybind11-dev
 	"
 options="!check"
-subpackages="$pkgname-dev::all $pkgname-libs::all $pkgname-tools::all"
+subpackages="
+	$pkgname-dev::all
+	$pkgname-libs::all
+	$pkgname-tools::all
+	python3-$pkgname:python3-bindings:all
+	"
 source="$pkgname-$pkgver.tar.gz::https://github.com/Tencent/ncnn/archive/$pkgver/ncnn-$pkgver.tar.gz
 	001-fix-bf16-packed-missing-int16-extension-check.patch
 	002-fix-atan2-vec4-zero-zero.patch
 	003-fix-spirv-compile-failure-diagnostics-read-past-shader-buffer.patch
+	004-fix-fastmalloc-fastfree-posix-c-source-branch-mismatch.patch
 	"
 
 build() {
@@ -43,7 +52,9 @@ build() {
 		-DNCNN_BUILD_TOOLS=ON \
 		-DNCNN_BUILD_EXAMPLES=OFF \
 		-DNCNN_BUILD_BENCHMARK=OFF \
-		-DNCNN_BUILD_TESTS=ON
+		-DNCNN_BUILD_TESTS=ON \
+		-DNCNN_PYTHON=ON \
+		-DNCNN_SYSTEM_PYBIND11=ON
 
 	cmake --build build -j4
 }
@@ -64,9 +75,19 @@ tools() {
 	amove usr/bin
 }
 
+python3-bindings() {
+	pkgdesc="$pkgdesc (Python 3 bindings)"
+	depends="$pkgname-libs=$pkgver-r$pkgrel python3-numpy"
+	amove usr/lib/python3*/site-packages
+}
+
 package() {
 	pkgarch="noarch"
 	DESTDIR="$pkgdir" cmake --install build
+	
+	_pyver=$(python3 -c 'import sys; print("%d.%d" % sys.version_info[:2])')
+	install -d "$pkgdir/usr/lib/python$_pyver/site-packages"
+	cp -a python/ncnn "$pkgdir/usr/lib/python$_pyver/site-packages/"
 }
 
 sha512sums="
@@ -74,4 +95,5 @@ sha512sums="
 a7fb1e64c28d0ee4cad31e05ca327ad13170c1f0831a3ae1b490883dcd0adec8f82adcc1f7ccfe8cd69bfc790af63f836009d46bdf33001ff4ef07d6c95fe98e  001-fix-bf16-packed-missing-int16-extension-check.patch
 2afc359d4034fced4b2217b156ff404a099baf39b6c6091dc724adc3d2756cd9a56ba84620853e1c53075e72327b5cca9eea917b03600c5e27532318d34a24c6  002-fix-atan2-vec4-zero-zero.patch
 add9773155774e8121c2eff19cf1e7e218b5bb26736b8c4fea41337612ca1336afb93b59c886019e5e2330f524322262b6e5fe455e2c615aa071782efccbb04d  003-fix-spirv-compile-failure-diagnostics-read-past-shader-buffer.patch
+a35140224449a3dc010df00768033932563c781de6f5616ab4c0c1bca817f6fa0489fcccf59f51c0ab85d4234cc75d12f4f2cc852141a16fd2d61447f4ea0416  004-fix-fastmalloc-fastfree-posix-c-source-branch-mismatch.patch
 "
