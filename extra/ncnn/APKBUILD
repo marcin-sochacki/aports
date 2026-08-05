@@ -56,7 +56,7 @@ build() {
 		-DNCNN_PYTHON=ON \
 		-DNCNN_SYSTEM_PYBIND11=ON
 
-	cmake --build build -j4
+	cmake --build build
 }
 
 check() {
