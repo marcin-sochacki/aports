@@ -69,7 +69,7 @@ build() {
 		-DPCL_IO_ENABLE_MAND_LOCKING=OFF \
 		-Wno-dev
 
-	cmake --build build -j8
+	cmake --build build
 }
 
 check() {
