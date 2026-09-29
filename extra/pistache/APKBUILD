@@ -17,10 +17,10 @@ depends_dev="
 makedepends="$depends_dev meson"
 checkdepends="curl-dev gmock gtest-dev"
 subpackages="$pkgname-dev"
-source="$pkgname-$pkgver.tar.gz::https://github.com/qnx-ports/pistache/archive/refs/tags/qnx-v$pkgver-1.tar.gz
+source="$pkgname-${pkgver}_p0.tar.gz::https://github.com/qnx-ports/pistache/archive/refs/tags/qnx-v${pkgver}_p0.tar.gz
 	pkgconf_version_string.patch
 	"
-builddir="$srcdir/$pkgname-qnx-v$pkgver-1"
+builddir="$srcdir/$pkgname-qnx-v${pkgver}_p0"
 
 # The BSD socket API lives in libsocket on QNX, and pistache's meson.build
 # does not link it; without it the link fails on setsockopt, bind, listen.
@@ -41,6 +41,6 @@ package() {
 }
 
 sha512sums="
-7e764e235132260e41423b6fe9756b18056a74881fc2e5400d60b756b9683b15a1a127c6c3fb7f9087a308d0d826ec2380361d58f6143dafbb612cad94e198ae  pistache-0.4.26.tar.gz
+5af7496cd0cd00b752c4ab13b1029bc457b6dcf4862cb05cf5a28eebfaf4ec1d37ef7dae04fd0202bfcc4d24c04f053387228df6235aff7e743438e9a4aca838  pistache-0.4.26_p0.tar.gz
 c1dc17439a601bcb849b4678efdfcb9a52cdcc4fe953a8bbcdce356041ab018d91b8daedfae1b7d4c8287753e3553a02357d83733d973a180349a24250e23559  pkgconf_version_string.patch
 "
