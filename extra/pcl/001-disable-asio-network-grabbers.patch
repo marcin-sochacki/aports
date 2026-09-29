@@ -39,3 +39,15 @@ Disable network grabbers that need boost::asio signal_set (unsupported SA_RESTAR
 -              FILES test_tim_grabber.cpp
 -              LINK_WITH pcl_gtest pcl_io
 -              ARGUMENTS "${PCL_SOURCE_DIR}/test/io/tim_sequences")
+--- a/tools/CMakeLists.txt
++++ b/tools/CMakeLists.txt
+@@ -51,9 +51,6 @@
+ PCL_ADD_EXECUTABLE(pcl_pcd_introduce_nan COMPONENT ${SUBSYS_NAME} SOURCES pcd_introduce_nan.cpp)
+ target_link_libraries(pcl_pcd_introduce_nan pcl_common pcl_io)
+ 
+-PCL_ADD_EXECUTABLE(pcl_hdl_grabber COMPONENT ${SUBSYS_NAME} SOURCES hdl_grabber_example.cpp)
+-target_link_libraries(pcl_hdl_grabber pcl_common pcl_io)
+-
+ if(WITH_OPENNI)
+   PCL_ADD_EXECUTABLE(pcl_oni2pcd COMPONENT ${SUBSYS_NAME} SOURCES oni2pcd.cpp)
+   target_link_libraries(pcl_oni2pcd pcl_common pcl_io)
