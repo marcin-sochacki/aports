@@ -8,6 +8,7 @@ pkgdesc="Implementation of IEEE 802.1ab"
 url="https://lldpd.github.io/"
 arch="all"
 license="ISC"
+depends="libevent readline"
 makedepends="autoconf automake libtool
 	libevent-dev libxml2-dev jansson-dev
 	perl-dev readline-dev"
