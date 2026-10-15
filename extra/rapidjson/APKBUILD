@@ -13,7 +13,7 @@ depends="$pkgname-dev"
 makedepends="cmake libc++-dev ninja"
 checkdepends="gtest gtest-dev"
 subpackages="$pkgname-dev"
-source="$pkgname-$pkgver.tar.gz::https://github.com/miloyip/rapidjson/archive/v$pkgver.tar.gz
+source="$pkgname-$pkgver.tar.gz::https://github.com/miloyip/rapidjson/archive/refs/tags/v$pkgver.tar.gz
 	do-not-include-gtest-src-dir.patch
 	disable-march-cxx-flag.patch
 	disable-Werror.patch
