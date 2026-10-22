@@ -22,16 +22,10 @@ subpackages="
 	"
 pkgusers="lldpd"
 pkggroups="lldpd"
-source="$pkgname-$pkgver.tar.gz::https://github.com/lldpd/lldpd/archive/refs/tags/$pkgver.tar.gz
+source="$pkgname-qnx-${pkgver}_p0.tar.gz::https://github.com/qnx-ports/lldpd/archive/refs/tags/qnx-${pkgver}_p0.tar.gz
 	lldpd.initd
-	0001-qnx-recognize-nto-qnx-and-build-bsd-backend.patch
-	0002-qnx-open-ioctl-socket-before-privsep-chroot.patch
-	0003-qnx-proxy-getifaddrs-through-privileged-monitor.patch
-	0004-qnx-open-route-socket-before-privsep-chroot.patch
-	0005-qnx-use-single-dev-bpf-clone-device.patch
-	0006-qnx-treat-enoent-as-stale-socket-in-retry-loop.patch
 	"
-builddir="$srcdir/$pkgname-$pkgver"
+builddir="$srcdir/$pkgname-qnx-${pkgver}_p0"
 
 prepare() {
 	default_prepare
@@ -78,12 +72,6 @@ package() {
 	make DESTDIR="$pkgdir" install
 }
 sha512sums="
-591f09d68c683ddaa80fe5984efd476fbd5f734164d10924ca574b738ab8b047c0acce5f72b74cde12338de969327ae3eb292cb07961c4f4bc54c3ccf4de59b6  lldpd-1.0.22.tar.gz
+7d0cbc169aa8f725b5d79b62840c23721cb35a352a9330695e4d99b34a2ce85aaa21b2c707b6da6e6ebe116de06f8f73bc5f104fe92f00fd002b2337f2fe0ba7  lldpd-qnx-1.0.22_p0.tar.gz
 a2940e284f418cd4cf87225397878d2cda20a27a74100a3475f4d3e41ec0bf67a5629ded066f4f57e2f5e9749f6e570a7710f6f27d3ca21b95b39c2055f286c4  lldpd.initd
-15c764feb0eaf501caf458e9032aeed8921d757cce1b8e75ea79e059e49dbcd9eff9915d308e25abfcf91645d633ad9d7946beb3a6bb7a0cd6f6e3f465c51b84  0001-qnx-recognize-nto-qnx-and-build-bsd-backend.patch
-08cc9020f3ecb15836d70942a837797fc14e9aca0853ff109fad1ba009c500c1d3c39512e060883a52aa4ff377444b7dff915d5d0434c6337e78cc4b631bc0f4  0002-qnx-open-ioctl-socket-before-privsep-chroot.patch
-731967c15ce6bff1c598b8f7f55082e4eaf476b44aa2dabfa6ae241f4bcb2cc9e31080bc02a49f3bd975db54c7360d09793d6bfda34195a08ff7a268c72dead4  0003-qnx-proxy-getifaddrs-through-privileged-monitor.patch
-936e4bed6270c0364b56f899574c493f318f18bd5eb8a1dfaabd41f12b5f9fa1fa395e65fb97034bba20ce884628f8980559acde70307c224c8c4451b5170166  0004-qnx-open-route-socket-before-privsep-chroot.patch
-57975718fe754b6a22a324c67d9483b5995958f5864838ea687997b3a11d266538a92dbbd0d55a629d49ce5ee2c0af2d97314270c0d5103f0688a8f515fa13fd  0005-qnx-use-single-dev-bpf-clone-device.patch
-f4bd41afbcdae33e26fb10117878f4d56995f892ee03aeb738d9758e4d9066deee0d1354e08e6397ab7db87b9fa668649c8bf632ed2f5b972d399068f43ff5b1  0006-qnx-treat-enoent-as-stale-socket-in-retry-loop.patch
 "
